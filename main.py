@@ -10,7 +10,7 @@ pygame.init()
 pygame.mixer.init()
 
 # Screen dimensions
-WIDTH, HEIGHT = 1200, 800
+WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Falling Squares Game")
 
@@ -306,7 +306,7 @@ class Menu:
     def create_buttons(self):
         button_width = 300
         button_height = 60
-        button_spacing = 20
+        button_spacing = 10
         start_y = HEIGHT // 2 - 100
         
         # Play button
@@ -353,10 +353,10 @@ class Menu:
         
         # Draw title
         title_text = title_font.render("FALLING SQUARES", True, CYAN)
-        surface.blit(title_text, (WIDTH//2 - title_text.get_width()//2, 100))
+        surface.blit(title_text, (WIDTH//2 - title_text.get_width()//2, 90))
         
         subtitle_text = font_medium.render("Avoid the falling squares!", True, LIGHT_GRAY)
-        surface.blit(subtitle_text, (WIDTH//2 - subtitle_text.get_width()//2, 160))
+        surface.blit(subtitle_text, (WIDTH//2 - subtitle_text.get_width()//2, 150))
         
         # Draw high score
         hs_text = font_large.render(f"High Score: {self.game.high_score}", True, YELLOW)
@@ -372,7 +372,7 @@ class Menu:
         
         for i, line in enumerate(controls):
             ctrl_text = font_small.render(line, True, LIGHT_GRAY)
-            surface.blit(ctrl_text, (WIDTH//2 - ctrl_text.get_width()//2, 320 + i*30))
+            surface.blit(ctrl_text, (WIDTH//2 - ctrl_text.get_width()//2, 420 + i*30))
         
         # Draw buttons
         for button in self.buttons:
