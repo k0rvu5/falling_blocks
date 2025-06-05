@@ -69,16 +69,11 @@ except pygame.error as e:
     pygame.mixer.music = silent_sound
 
 
-# # Fonts
-# title_font = pygame.font.SysFont("Arial", 48, bold=True)
-# font_large = pygame.font.SysFont("Arial", 32, bold=True)
-# font_medium = pygame.font.SysFont("Arial", 24)
-# font_small = pygame.font.SysFont("Arial", 18)
 # Fonts
-title_font = pygame.font.SysFont("JetBrainsMono Nerd Font", 48, bold=True)
-font_large = pygame.font.SysFont("JetBrainsMono Nerd Font", 32, bold=True)
-font_medium = pygame.font.SysFont("JetBrainsMono Nerd Font", 24)
-font_small = pygame.font.SysFont("JetBrainsMono Nerd Font", 18)
+title_font = pygame.font.SysFont("Arial", 48, bold=True)
+font_large = pygame.font.SysFont("Arial", 32, bold=True)
+font_medium = pygame.font.SysFont("Arial", 24)
+font_small = pygame.font.SysFont("Arial", 18)
 
 class Button:
     def __init__(self, x, y, width, height, text, action=None):
@@ -119,6 +114,7 @@ class Player:
     def move(self, dx, dy):
         self.x = max(0, min(WIDTH - self.size, self.x + dx * self.speed))
         self.y = max(0, min(HEIGHT - self.size, self.y + dy * self.speed))
+        pygame.mouse.set_pos(self.x + self.size // 2, self.y + self.size // 2)
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
         
     def move_to_mouse(self, pos):
@@ -444,12 +440,12 @@ def main():
                 dy -= 1
             if keys[K_j] or keys[K_DOWN]:
                 dy += 1
-            game.player.move(dx, dy)
             
             # Mouse movement
             if pygame.mouse.get_focused():
                 mouse_pos = pygame.mouse.get_pos()
                 game.player.move_to_mouse(mouse_pos)
+            game.player.move(dx, dy)
         
         # Update game
         if current_screen == "game":
