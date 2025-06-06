@@ -108,7 +108,7 @@ class Player:
         self.x = WIDTH // 2
         self.y = HEIGHT - 100
         self.size = PLAYER_SIZE
-        self.speed = 5
+        self.speed = 15
         self.rect = pygame.Rect(self.x, self.y, self.size, self.size)
         
     def move(self, dx, dy):
@@ -415,6 +415,8 @@ def main():
                         running = False
                         
                 if event.key == K_p and current_screen == "game":
+                    if game.paused:
+                        pygame.mouse.set_pos(game.player.x + game.player.size // 2, game.player.y + game.player.size // 2)
                     game.paused = not game.paused
                     
                 if event.key == K_SPACE and current_screen == "game" and game.game_over:
