@@ -5,29 +5,33 @@ import random
 from constants import (
     WIDTH, HEIGHT, BACKGROUND, WHITE, LIGHT_GRAY, RED, YELLOW,
     SPAWN_RATE, SCORE_PER_SECOND, DIFFICULTIES, SAVE_FILE,
-    title_font, font_large, font_medium
+    title_font, font_large, font_medium, MAX_ROCKETS
 )
 from player import Player
 from obstacle import Obstacle
+from rocket import Rocket
 
 class Game:
     def __init__(self):
-        try:
-            pygame.mixer.music.load("background_music.mp3")
-            pygame.mixer.music.set_volume(0.5)
-        except:
-            pass
         self.reset()
         self.load_settings()
 
     def reset(self):
         self.player = Player()
         self.obstacles = []
+        self.rockets = []
         self.score = 0
         self.game_over = False
         self.paused = False
         self.last_spawn_time = pygame.time.get_ticks()
         self.start_time = pygame.time.get_ticks()
+        self.last_rocket_refill = pygame.time.get_ticks()
+        self.rockets_available = MAX_ROCKETS
+        try:
+            pygame.mixer.music.load("background_music.mp3")
+            pygame.mixer.music.set_volume(0.5)
+        except:
+            pass
         pygame.mixer.music.play(-1)  # Loop indefinitely
         
     def load_settings(self):
@@ -62,6 +66,24 @@ class Game:
         if current_time - self.last_spawn_time > 1000 / spawn_rate:
             self.obstacles.append(Obstacle(self.difficulty))
             self.last_spawn_time = current_time
+
+    def fire_rocket(self):
+        """Fire a rocket from the player's position if available."""
+        if self.rockets_available > 0:
+            rocket_x = self.player.x + self.player.size // 2 - 5  # Center the rocket
+            rocket_y = self.player.y
+            self.rockets.append(Rocket(rocket_x, rocket_y))
+            self.rockets_available -= 1
+
+    def refill_rockets(self):
+        """Refill rockets based on difficulty settings."""
+        current_time = pygame.time.get_ticks()
+        refill_time = DIFFICULTIES[self.difficulty]["rocket_refill_time"] * 1000  # Convert to milliseconds
+        
+        if current_time - self.last_rocket_refill > refill_time:
+            if self.rockets_available < MAX_ROCKETS:
+                self.rockets_available += 1
+            self.last_rocket_refill = current_time
             
     def update(self):
         if self.game_over or self.paused:
@@ -74,17 +96,36 @@ class Game:
         # Spawn new obstacles
         self.spawn_obstacle()
         
+        # Update rockets
+        for rocket in self.rockets[:]:
+            if rocket.update():
+                self.rockets.remove(rocket)
+                continue
+                
+            # Check rocket collisions with obstacles
+            for obstacle in self.obstacles[:]:
+                if rocket.rect.colliderect(obstacle.rect):
+                    if rocket in self.rockets:
+                        self.rockets.remove(rocket)
+                    if obstacle in self.obstacles:
+                        self.obstacles.remove(obstacle)
+                    break
+        
         # Update obstacles
         for obstacle in self.obstacles[:]:
             if obstacle.update():
                 self.obstacles.remove(obstacle)
+                continue
                 
-            # Check collision
+            # Check collision with player
             if self.player.rect.colliderect(obstacle.rect):
                 self.game_over = True
                 if self.score > self.high_score:
                     self.high_score = self.score
                     self.save_settings()
+        
+        # Refill rockets
+        self.refill_rockets()
                     
     def draw(self, surface):
         # Draw starry background
@@ -106,6 +147,10 @@ class Game:
         for obstacle in self.obstacles:
             obstacle.draw(surface)
             
+        # Draw rockets
+        for rocket in self.rockets:
+            rocket.draw(surface)
+            
         # Draw player
         self.player.draw(surface)
         
@@ -120,6 +165,10 @@ class Game:
         # Draw difficulty
         diff_text = font_medium.render(f"Difficulty: {self.difficulty}", True, LIGHT_GRAY)
         surface.blit(diff_text, (WIDTH - diff_text.get_width() - 20, 20))
+
+        # Draw rockets available
+        rockets_text = font_medium.render(f"Rockets: {self.rockets_available}", True, WHITE)
+        surface.blit(rockets_text, (20, 100))
         
         # Draw game over message
         if self.game_over:

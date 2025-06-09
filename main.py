@@ -68,8 +68,15 @@ def handle_events(game, menu, current_screen):
                                        game.player.y + game.player.size // 2)
                 game.paused = not game.paused
                     
-            if event.key == K_SPACE and current_screen == "game" and game.game_over:
-                game.reset()
+            if event.key == K_SPACE:
+                if current_screen == "game" and not game.paused and not game.game_over:
+                    game.fire_rocket()
+                elif current_screen == "game" and game.game_over:
+                    game.reset()
+                
+        if event.type == MOUSEBUTTONDOWN:
+            if event.button == 1 and current_screen == "game" and not game.paused and not game.game_over:
+                game.fire_rocket()
                 
         if current_screen == "menu":
             result = menu.handle_event(event)
