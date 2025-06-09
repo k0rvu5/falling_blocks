@@ -75,6 +75,7 @@ def handle_events(game, menu, current_screen):
             result = menu.handle_event(event)
             if result:
                 if result == "game":
+                    game.reset()
                     pygame.mixer.music.play(-1)
                     pygame.event.set_grab(True)
                 return result
